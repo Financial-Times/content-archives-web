@@ -1,0 +1,13 @@
+{
+    "name": "content-archives",
+    "description": "Simplistic UI for exposing the zip archives for automated content export",
+    "keywords": [
+        "content-archives",
+        "content-export",
+        "zip"
+    ],
+    "image": "heroku/go:1.9",
+    "mount_dir": "src/github.com/heroku/content-archives",
+    "website": "https://github.com/Financial-Times/content-archives-web",
+    "repository": "https://github.com/Financial-Times/content-archives-web"
+}
