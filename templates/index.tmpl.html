@@ -8,5 +8,12 @@
       <p>This is a Simplistic UI for exposing the zip archives for automated content export.</p>
     </div>
   </div>
+
+  <div>
+    {{range $element := .zipFiles}}
+      <a onclick= {handler({{ $element }})}>{{ $element }}</a>
+      <br/>
+    {{ end }}
+  </div>
 </body>
 </html>
