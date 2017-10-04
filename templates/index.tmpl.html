@@ -1,5 +1,10 @@
 <html>
-{{template "header.tmpl.html"}}
+<head>
+  <title>S3 Content Archives</title>
+  <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="/static/main.css" />
+  <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" >
+</head>
 
 <body>
   <div class="jumbotron text-center">
@@ -11,7 +16,7 @@
 
   <div>
     {{range $element := .zipFiles}}
-      <a onclick= {handler({{ $element }})}>{{ $element }}</a>
+      <a href= "/download/{{ $element }}">{{ $element }}</a>
       <br/>
     {{ end }}
   </div>
