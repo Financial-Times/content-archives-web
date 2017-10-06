@@ -1,24 +1,63 @@
 <html>
+
 <head>
   <title>S3 Content Archives</title>
-  <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://www.ft.com/__origami/service/build/v2/bundles/css?modules=o-table" />
+  <link rel="stylesheet" href="https://www.ft.com/__origami/service/build/v2/bundles/css?modules=o-header-services" />
+  <link rel="stylesheet" href="https://www.ft.com/__origami/service/build/v2/bundles/css?modules=o-techdocs" />
   <link rel="stylesheet" type="text/css" href="/static/main.css" />
-  <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" >
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css"></link>
+  <link rel="shortcut icon" type="image/x-icon" href="https://www.ft.com/__origami/service/image/v2/images/raw/ftlogo-v1:brand-ft?source=content-archives">
+  <script src="//www.ft.com/__origami/service/build/v2/bundles/js?modules=o-techdocs%407.0.2%2Co-fonts%40%5E3.0.0%2Co-grid%40%5E4.0.0"></script>
 </head>
 
 <body>
-  <div class="jumbotron text-center">
-    <div class="container">
-      <h1>Content Archives</h1>
-      <p>This is a Simplistic UI for exposing the zip archives for automated content export.</p>
+  <header class="o-header-services" data-o-component="o-header">
+    <div class="o-header-services__top o-header-services__container">
+      <div class="o-header-services__ftlogo"></div>
+      <div class="o-header-services__title">
+        <h1 class="o-header-services__product-name"><a href="/">Content Archives</a></h1><span class="o-header-subrand__product-tagline ">Download from AWS S3</span>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <div>
-    {{range $element := .zipFiles}}
-      <a href= "/download/{{ $element }}">{{ $element }}</a>
-      <br/>
-    {{ end }}
+  <!-- Navigation menu and main content -->
+  <div class="o-techdocs-container">
+    <div class="o-techdocs-layout">
+      <!-- Main content (outer div for layout, inner for formatting) -->
+      <div class="o-techdocs-main">
+        <div class="o-techdocs-content">
+          <h4>This is a Simplistic UI for exposing the zip archives for automated content export.</h4>
+          <h4>Click on the link to start the download:</h4>
+          <table class="o-table o-table--row-stripes" data-o-component="o-table">
+            <thead>
+              <th>File name</th>
+              <th>Last modified</th>
+            </thead>
+            <tbody>
+              {{range $file, $lastModified := .zipFiles}}
+              <tr>
+                <td><a href="/download/{{ $file }}">{{ $file }}</a></td>
+                <td>{{ $lastModified}}</td>
+              </tr>
+              {{ end }}
+            </tbody>
+          </table>
+        </div>
+        <!-- o-techdocs-content -->
+      </div>
+      <!-- o-techdocs-main -->
+    </div>
+    <!-- /.o-techdocs-layout -->
   </div>
+  <!-- /.o-techdocs-container -->
+
+  <footer class="o-techdocs-footer">
+    <div class="o-techdocs-footer__inner">
+      <p class="o-techdocs-footer__secondary"><a href="https://github.com/Financial-Times/content-archives-web">View project on GitHub</a></p>
+      <p>&#xA9; THE FINANCIAL TIMES LTD. FT and 'Financial Times' are trademarks of The Financial Times Ltd.</p>
+    </div>
+  </footer>
 </body>
+
 </html>

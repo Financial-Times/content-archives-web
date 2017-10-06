@@ -35,8 +35,16 @@ func main() {
 	router.Use(gin.Logger())
 	router.LoadHTMLGlob("templates/*.tmpl.html")
 	router.Static("/static", "static")
+	router.GET("/", homepageHandler(s3Reader))
+	router.GET("/download/yearly-archives/:name", downloadHandler(s3Reader))
 
-	router.GET("/", func(c *gin.Context) {
+	//handler := s3o.Handler(router)
+	//http.ListenAndServe(":"+port, handler)
+	http.ListenAndServe(":"+port, router)
+}
+
+func homepageHandler(s3Reader S3Reader) func(c *gin.Context) {
+	return func(c *gin.Context) {
 		zipFiles, err := s3Reader.RetrieveArchivesFromS3()
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "Unable to get archives list from S3", nil)
@@ -44,9 +52,11 @@ func main() {
 		c.HTML(http.StatusOK, "index.tmpl.html", gin.H{
 			"zipFiles": zipFiles,
 		})
-	})
+	}
+}
 
-	router.GET("/download/yearly-archives/:name", func(c *gin.Context) {
+func downloadHandler(s3Reader S3Reader) func(c *gin.Context) {
+	return func(c *gin.Context) {
 		name := c.Param("name")
 		bytes, err := s3Reader.DownloadArchiveFromS3(name)
 		if err != nil {
@@ -55,7 +65,5 @@ func main() {
 
 		c.Header("Content-Disposition", "attachment; filename="+name)
 		c.Data(http.StatusOK, "application/zip", bytes)
-	})
-
-	router.Run(":" + port)
+	}
 }

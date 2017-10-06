@@ -22,8 +22,9 @@ func NewS3Reader(awsRegion string, awsBucketName string, awsBucketPrefix string)
 }
 
 // RetrieveArchivesFromS3 returns a list of objects from S3, based on awsBucketName and awsBucketPrefix
-func (s3Reader *S3Reader) RetrieveArchivesFromS3() ([]string, error) {
-	zipFiles := make([]string, 0)
+func (s3Reader *S3Reader) RetrieveArchivesFromS3() (map[string]string, error) {
+	//zipFiles := make([]string, 0)
+	zipFiles := make(map[string]string)
 	sess, err := session.NewSession()
 	if err != nil {
 		return zipFiles, err
@@ -41,7 +42,8 @@ func (s3Reader *S3Reader) RetrieveArchivesFromS3() ([]string, error) {
 	}
 
 	for _, content := range result.Contents {
-		zipFiles = append(zipFiles, aws.StringValue(content.Key))
+		lastModified := aws.TimeValue(content.LastModified)
+		zipFiles[aws.StringValue(content.Key)] = lastModified.Format("2006-01-02 15:04:05")
 	}
 
 	return zipFiles, nil
