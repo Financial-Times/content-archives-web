@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "pkj2Ye4zdp0xPbL3kMwYevlpwQo=",
+			"path": "code.cloudfoundry.org/bytefmt",
+			"revision": "f4415fafc5619dd75599a54a7c91fb3948ad58bd",
+			"revisionTime": "2017-04-28T00:31:08Z"
+		},
+		{
 			"checksumSHA1": "Ii0lTTpYpynPCpdqmcFQcJ0WH8w=",
 			"path": "github.com/aws/aws-sdk-go/aws",
 			"revision": "5a2026bfb28e86839f9fcc46523850319399006c",
@@ -227,6 +233,12 @@
 			"revisionTime": "2017-09-29T22:28:32Z"
 		},
 		{
+			"checksumSHA1": "Uc2U79K7amx8tmFdpfqta8y2+p8=",
+			"path": "github.com/json-iterator/go",
+			"revision": "0149a5cf4a375314e767894cd8343b13804d12b4",
+			"revisionTime": "2017-10-09T00:24:51Z"
+		},
+		{
 			"checksumSHA1": "y/A5iuvwjytQE2CqVuphQRXR2nI=",
 			"path": "github.com/mattn/go-isatty",
 			"revision": "a5cdd64afdee435007ee3e9f6ed4684af949d568",
@@ -237,6 +249,12 @@
 			"path": "github.com/ugorji/go/codec",
 			"revision": "54210f4e076c57f351166f0ed60e67d3fca57a36",
 			"revisionTime": "2017-09-18T22:25:52Z"
+		},
+		{
+			"checksumSHA1": "ctkHmbkAolywuCZZocHn514yvXA=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "ebfc5b4631820b793c9010c87fd8fef0f39eb082",
+			"revisionTime": "2017-10-06T15:06:24Z"
 		},
 		{
 			"checksumSHA1": "P/k5ZGf0lEBgpKgkwy++F7K1PSg=",
