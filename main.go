@@ -32,16 +32,15 @@ func main() {
 	}
 
 	s3Reader := NewS3Reader(awsRegion, awsBucketName, awsBucketPrefix)
-	router := gin.New()
-	router.Use(gin.Logger())
+	router := gin.Default()
 	router.LoadHTMLGlob("templates/*.tmpl.html")
 	router.Static("/static", "static")
+	router.POST("/", homepageHandler(s3Reader))
 	router.GET("/", homepageHandler(s3Reader))
 	router.GET("/download/yearly-archives/:name", downloadHandler(s3Reader))
 
 	handler := s3o.Handler(router)
 	http.ListenAndServe(":"+port, handler)
-	// http.ListenAndServe(":"+port, router)
 }
 
 func homepageHandler(s3Reader S3Reader) func(c *gin.Context) {
