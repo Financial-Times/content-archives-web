@@ -37,7 +37,7 @@
             <tbody>
               {{range $file := .zipFiles}}
               <tr>
-                <td><a href="/download/{{ $file }}">{{ $file.Name }}</a></td>
+                <td><a href="/download/{{ $file.Name }}">{{ $file.Name }}</a></td>
                 <td>{{ $file.Size}}</td>
                 <td>{{ $file.LastModified}}</td>
               </tr>
