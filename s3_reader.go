@@ -10,8 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-// S3Reader struct containig AWS configuration
-type S3Reader struct {
+type s3Config struct {
 	awsRegion       string
 	awsBucketName   string
 	awsBucketPrefix string
@@ -24,13 +23,19 @@ type ZipFile struct {
 	LastModified string
 }
 
+// S3Reader interface for read/download files from AWS S3
+type S3Reader interface {
+	RetrieveArchivesFromS3() ([]ZipFile, error)
+	DownloadArchiveFromS3(fileName string) ([]byte, error)
+}
+
 // NewS3Reader returns a new S3Reader instance
 func NewS3Reader(awsRegion string, awsBucketName string, awsBucketPrefix string) S3Reader {
-	return S3Reader{awsRegion, awsBucketName, awsBucketPrefix}
+	return &s3Config{awsRegion, awsBucketName, awsBucketPrefix}
 }
 
 // RetrieveArchivesFromS3 returns a list of objects from S3, based on awsBucketName and awsBucketPrefix
-func (s3Reader *S3Reader) RetrieveArchivesFromS3() ([]ZipFile, error) {
+func (conf *s3Config) RetrieveArchivesFromS3() ([]ZipFile, error) {
 	zipFiles := make([]ZipFile, 0)
 	sess, err := session.NewSession()
 	if err != nil {
@@ -39,8 +44,8 @@ func (s3Reader *S3Reader) RetrieveArchivesFromS3() ([]ZipFile, error) {
 
 	svc := s3.New(sess)
 	input := &s3.ListObjectsInput{
-		Bucket: aws.String(s3Reader.awsBucketName),
-		Prefix: aws.String(s3Reader.awsBucketPrefix),
+		Bucket: aws.String(conf.awsBucketName),
+		Prefix: aws.String(conf.awsBucketPrefix),
 	}
 	result, err := svc.ListObjects(input)
 	if err != nil {
@@ -61,7 +66,7 @@ func (s3Reader *S3Reader) RetrieveArchivesFromS3() ([]ZipFile, error) {
 }
 
 // DownloadArchiveFromS3 downloads a file from AWS S3 and returns an array of bytes
-func (s3Reader *S3Reader) DownloadArchiveFromS3(fileName string) ([]byte, error) {
+func (conf *s3Config) DownloadArchiveFromS3(fileName string) ([]byte, error) {
 	log.Println("Starting to download archives...")
 
 	sess, err := session.NewSession()
@@ -74,8 +79,8 @@ func (s3Reader *S3Reader) DownloadArchiveFromS3(fileName string) ([]byte, error)
 	buffer := aws.NewWriteAtBuffer(a)
 	_, err = downloader.Download(buffer,
 		&s3.GetObjectInput{
-			Bucket: aws.String(s3Reader.awsBucketName),
-			Key:    aws.String(s3Reader.awsBucketPrefix + "/" + fileName),
+			Bucket: aws.String(conf.awsBucketName),
+			Key:    aws.String(conf.awsBucketPrefix + "/" + fileName),
 		})
 
 	if err != nil {

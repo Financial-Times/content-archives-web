@@ -32,37 +32,19 @@ func main() {
 	}
 
 	s3Reader := NewS3Reader(awsRegion, awsBucketName, awsBucketPrefix)
+	handler := NewHandler(s3Reader)
+	router := createRouting(handler)
+	s3AuthHandler := s3o.Handler(router)
+
+	http.ListenAndServe(":"+port, s3AuthHandler)
+}
+
+func createRouting(handler Handler) http.Handler {
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*.tmpl.html")
 	router.Static("/static", "static")
-	router.GET("/", homepageHandler(s3Reader))
-	router.GET("/download/:prefix/:name", downloadHandler(s3Reader))
+	router.GET("/", handler.HomepageHandler())
+	router.GET("/download/:prefix/:name", handler.DownloadHandler())
 
-	handler := s3o.Handler(router)
-	http.ListenAndServe(":"+port, handler)
-}
-
-func homepageHandler(s3Reader S3Reader) func(c *gin.Context) {
-	return func(c *gin.Context) {
-		zipFiles, err := s3Reader.RetrieveArchivesFromS3()
-		if err != nil {
-			c.HTML(http.StatusInternalServerError, "Unable to get archives list from S3", nil)
-		}
-		c.HTML(http.StatusOK, "index.tmpl.html", gin.H{
-			"zipFiles": zipFiles,
-		})
-	}
-}
-
-func downloadHandler(s3Reader S3Reader) func(c *gin.Context) {
-	return func(c *gin.Context) {
-		name := c.Param("name")
-		bytes, err := s3Reader.DownloadArchiveFromS3(name)
-		if err != nil {
-			c.HTML(http.StatusInternalServerError, "Unable to download archive from S3", nil)
-		}
-
-		c.Header("Content-Disposition", "attachment; filename="+name)
-		c.Data(http.StatusOK, "application/zip", bytes)
-	}
+	return router
 }
