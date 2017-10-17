@@ -9,18 +9,18 @@ import (
 
 // Handler struct containig handlers configuration
 type Handler struct {
-	s3Reader S3Reader
+	s3Service S3Service
 }
 
 // NewHandler returns a new Handler instance
-func NewHandler(s3Reader S3Reader) Handler {
-	return Handler{s3Reader}
+func NewHandler(s3Service S3Service) Handler {
+	return Handler{s3Service}
 }
 
 // HomepageHandler serves the homepage content
 func (h *Handler) HomepageHandler() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		zipFiles, err := h.s3Reader.RetrieveArchivesFromS3()
+		zipFiles, err := h.s3Service.RetrieveArchivesFromS3()
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "Unable to get archives list from S3", nil)
 		}
@@ -38,7 +38,7 @@ func (h *Handler) DownloadHandler() func(c *gin.Context) {
 			c.HTML(http.StatusBadRequest, "Please specify the name of the file", nil)
 		}
 
-		bytes, err := h.s3Reader.DownloadArchiveFromS3(name)
+		bytes, err := h.s3Service.DownloadArchiveFromS3(name)
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, "Unable to download archive from S3", nil)
 		}

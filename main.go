@@ -31,8 +31,8 @@ func main() {
 		log.Fatal("$AWS_BUCKET_PREFIX must be set")
 	}
 
-	s3Reader := NewS3Reader(awsRegion, awsBucketName, awsBucketPrefix)
-	handler := NewHandler(s3Reader)
+	s3Service := NewS3Service(awsRegion, awsBucketName, awsBucketPrefix)
+	handler := NewHandler(s3Service)
 	router := createRouting(handler)
 	s3AuthHandler := s3o.Handler(router)
 
