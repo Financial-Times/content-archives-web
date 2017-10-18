@@ -1,49 +1,67 @@
 package main
 
 import (
+	"html/template"
+	"log"
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
+)
+
+const (
+	indexTemplate = "templates/index.tmpl.html"
 )
 
 // Handler struct containig handlers configuration
 type Handler struct {
 	s3Service S3Service
+	tmpl      *template.Template
 }
 
 // NewHandler returns a new Handler instance
 func NewHandler(s3Service S3Service) Handler {
-	return Handler{s3Service}
+	tmpl := template.Must(template.ParseFiles(indexTemplate))
+	return Handler{s3Service, tmpl}
 }
 
 // HomepageHandler serves the homepage content
-func (h *Handler) HomepageHandler() func(c *gin.Context) {
-	return func(c *gin.Context) {
-		zipFiles, err := h.s3Service.RetrieveArchivesFromS3()
-		if err != nil {
-			c.HTML(http.StatusInternalServerError, "Unable to get archives list from S3", nil)
-		}
-		c.HTML(http.StatusOK, "index.tmpl.html", gin.H{
-			"zipFiles": zipFiles,
-		})
+func (h *Handler) HomepageHandler(w http.ResponseWriter, r *http.Request) {
+	zipFiles, err := h.s3Service.RetrieveArchivesFromS3()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Unable to get archives list from S3"))
 	}
+	h.tmpl.Execute(w, zipFiles)
 }
 
 // DownloadHandler starts the download of the specified file in request
-func (h *Handler) DownloadHandler() func(c *gin.Context) {
-	return func(c *gin.Context) {
-		name := c.Param("name")
-		if name == "" || len(strings.TrimSpace(name)) == 0 {
-			c.HTML(http.StatusBadRequest, "Please specify the name of the file", nil)
-		}
-
-		bytes, err := h.s3Service.DownloadArchiveFromS3(name)
-		if err != nil {
-			c.HTML(http.StatusInternalServerError, "Unable to download archive from S3", nil)
-		}
-
-		c.Header("Content-Disposition", "attachment; filename="+name)
-		c.Data(http.StatusOK, "application/zip", bytes)
+func (h *Handler) DownloadHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	name := vars["name"]
+	if name == "" || len(strings.TrimSpace(name)) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Please specify the name of the file"))
 	}
+
+	bytes, err := h.s3Service.DownloadArchiveFromS3(name)
+	if err != nil {
+		log.Println("Unable to download archive from S3", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Unable to download archive from S3"))
+	}
+
+	w.Header().Add("Content-Disposition", "attachment; filename="+name)
+	_, err = w.Write(bytes)
+	if err != nil {
+		log.Println("Could not start file download", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Could not start file download"))
+	}
+}
+
+// S3AutHandler middleware handler that adds authentication for the initial handler
+func (h *Handler) S3AutHandler(f http.HandlerFunc) http.Handler {
+	var handler http.Handler = http.HandlerFunc(f)
+	return handler
 }

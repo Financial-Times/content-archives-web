@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Financial-Times/ft-s3o-go/s3o"
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	_ "github.com/heroku/x/hmetrics/onload"
 )
 
@@ -32,19 +31,19 @@ func main() {
 	}
 
 	s3Service := NewS3Service(awsRegion, awsBucketName, awsBucketPrefix)
-	handler := NewHandler(s3Service)
-	router := createRouting(handler)
-	s3AuthHandler := s3o.Handler(router)
+	healthCheck := HealthCheck{}
+	appHandler := NewHandler(s3Service)
+	r := mux.NewRouter()
 
-	http.ListenAndServe(":"+port, s3AuthHandler)
-}
+	// using middlewares to restrict access to FT members only
+	r.Handle("/", appHandler.S3AutHandler(appHandler.HomepageHandler))
+	r.Handle("/download/{prefix}/{name}", appHandler.S3AutHandler(appHandler.DownloadHandler))
 
-func createRouting(handler Handler) http.Handler {
-	router := gin.Default()
-	router.LoadHTMLGlob("templates/*.tmpl.html")
-	router.Static("/static", "static")
-	router.GET("/", handler.HomepageHandler())
-	router.GET("/download/:prefix/:name", handler.DownloadHandler())
+	// health should be accessible for anyone
+	r.HandleFunc("/__health", healthCheck.Health())
 
-	return router
+	err := http.ListenAndServe(":"+port, r)
+	if err != nil {
+		log.Fatalf("Error starting the app: %v", err)
+	}
 }

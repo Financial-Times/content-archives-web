@@ -35,11 +35,11 @@
               <th>Last modified</th>
             </thead>
             <tbody>
-              {{range $file := .zipFiles}}
+              {{range .}}
               <tr>
-                <td><a href="/download/{{ $file.Name }}">{{ $file.Name }}</a></td>
-                <td>{{ $file.Size}}</td>
-                <td>{{ $file.LastModified}}</td>
+                <td><a href="/download/{{ .Name }}">{{ .Name }}</a></td>
+                <td>{{ .Size}}</td>
+                <td>{{ .LastModified}}</td>
               </tr>
               {{ end }}
             </tbody>
