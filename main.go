@@ -31,19 +31,23 @@ func main() {
 	}
 
 	s3Service := NewS3Service(awsRegion, awsBucketName, awsBucketPrefix)
-	healthCheck := HealthCheck{}
+	healthCheck := HealthCheck{awsBucketName, awsBucketPrefix}
 	appHandler := NewHandler(s3Service)
-	r := mux.NewRouter()
 
-	// using middlewares to restrict access to FT members only
-	r.Handle("/", appHandler.S3AutHandler(appHandler.HomepageHandler))
-	r.Handle("/download/{prefix}/{name}", appHandler.S3AutHandler(appHandler.DownloadHandler))
+	r := mux.NewRouter()
+	// load static files
+	staticH := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
+	r.PathPrefix("/static/").Handler(staticH)
+
+	// use middlewares to restrict access to FT members only
+	r.Handle("/", appHandler.AuthHandler(appHandler.HomepageHandler))
+	r.Handle("/download/{prefix}/{name}", appHandler.AuthHandler(appHandler.DownloadHandler))
 
 	// health should be accessible for anyone
 	r.HandleFunc("/__health", healthCheck.Health())
 
 	err := http.ListenAndServe(":"+port, r)
 	if err != nil {
-		log.Fatalf("Error starting the app: %v", err)
+		panic(err)
 	}
 }

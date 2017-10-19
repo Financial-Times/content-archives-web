@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Financial-Times/ft-s3o-go/s3o"
 	"github.com/gorilla/mux"
 )
 
@@ -60,8 +61,8 @@ func (h *Handler) DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// S3AutHandler middleware handler that adds authentication for the initial handler
-func (h *Handler) S3AutHandler(f http.HandlerFunc) http.Handler {
+// AuthHandler middleware handler that adds authentication for the initial handler
+func (h *Handler) AuthHandler(f http.HandlerFunc) http.Handler {
 	var handler http.Handler = http.HandlerFunc(f)
-	return handler
+	return s3o.Handler(handler)
 }

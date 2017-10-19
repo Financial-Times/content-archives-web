@@ -9,12 +9,10 @@
 			"revisionTime": "2017-04-28T00:31:08Z"
 		},
 		{
-			"checksumSHA1": "noGzmwkAt+5UW67/bShqNp+CpNg=",
+			"checksumSHA1": "BWeYd/jLYqZtrO96kAtZD62exiQ=",
 			"path": "github.com/Financial-Times/ft-s3o-go/s3o",
 			"revision": "dfd9966ec5fee02697d71ca12a17560a31c9ccde",
-			"revisionTime": "2017-10-13T10:51:55Z",
-			"version": "=1.0.0-dev3",
-			"versionExact": "1.0.0-dev3"
+			"revisionTime": "2017-10-13T10:51:55Z"
 		},
 		{
 			"checksumSHA1": "fNgRM8ZlaDzdvSpuhSdGxEOrWi4=",
