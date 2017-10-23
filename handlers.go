@@ -16,14 +16,15 @@ const (
 
 // Handler struct containig handlers configuration
 type Handler struct {
-	s3Service S3Service
-	tmpl      *template.Template
+	s3Service   S3Service
+	tmpl        *template.Template
+	healthCheck HealthCheck
 }
 
 // NewHandler returns a new Handler instance
-func NewHandler(s3Service S3Service) Handler {
+func NewHandler(s3Service S3Service, healthCheck HealthCheck) Handler {
 	tmpl := template.Must(template.ParseFiles(indexTemplate))
-	return Handler{s3Service, tmpl}
+	return Handler{s3Service, tmpl, healthCheck}
 }
 
 // HomepageHandler serves the homepage content
@@ -59,6 +60,11 @@ func (h *Handler) DownloadHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Could not start file download"))
 	}
+}
+
+func (h *Handler) HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	r.Header.Set("accept", "application/json")
+	h.healthCheck.Health()(w, r)
 }
 
 // AuthHandler middleware handler that adds authentication for the initial handler
