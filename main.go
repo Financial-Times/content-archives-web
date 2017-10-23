@@ -32,7 +32,7 @@ func main() {
 
 	s3Service := NewS3Service(awsRegion, awsBucketName, awsBucketPrefix)
 	healthCheck := HealthCheck{awsBucketName, awsBucketPrefix}
-	appHandler := NewHandler(s3Service, healthCheck)
+	appHandler := NewHandler(s3Service)
 
 	r := mux.NewRouter()
 	// load static files
@@ -44,7 +44,7 @@ func main() {
 	r.Handle("/download/{prefix}/{name}", appHandler.AuthHandler(appHandler.DownloadHandler))
 
 	// health should be accessible for anyone
-	r.HandleFunc("/__health", appHandler.HealthCheckHandler)
+	r.HandleFunc("/__health", healthCheck.Health())
 
 	err := http.ListenAndServe(":"+port, r)
 	if err != nil {
