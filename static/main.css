@@ -1,0 +1,8 @@
+body {
+  background: #FFF1E5;
+  margin: 0;
+}
+
+.o-techdocs-table-wrapper>table>thead>tr>th {
+    background-color: #F2DFCE;
+}

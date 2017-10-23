@@ -1,0 +1,5 @@
+.env
+.docker_build/
+.DS_Store
+/content-archives-web*
+vendor/*/
