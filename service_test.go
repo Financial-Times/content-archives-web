@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/client/metadata"
+
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -16,6 +19,7 @@ const (
 	bucket       = "BUCKET"
 	bucketPrefix = "BUCKET_PREFIX"
 	fileName     = "content_archive.zip"
+	testURL      = "https://ft.com"
 )
 
 var (
@@ -41,9 +45,9 @@ func (m *s3ReaderMock) Read(input *s3.ListObjectsInput) (*s3.ListObjectsOutput, 
 	return nil, args.Error(1)
 }
 
-func (m *s3ReaderMock) Download(input *s3.GetObjectInput) (*aws.WriteAtBuffer, error) {
+func (m *s3ReaderMock) GetDownloadURL(input *s3.GetObjectInput) (*request.Request, error) {
 	args := m.Called(input)
-	if result, ok := args.Get(0).(*aws.WriteAtBuffer); ok {
+	if result, ok := args.Get(0).(*request.Request); ok {
 		return result, args.Error(1)
 	}
 	return nil, args.Error(1)
@@ -80,27 +84,32 @@ func TestRetrieveArchivesFromS3WithError(t *testing.T) {
 
 func TestDownloadArchiveFromS3Success(t *testing.T) {
 	s3ReaderObj := new(s3ReaderMock)
-	a := []byte{'a', 'b', 'c'}
-	fileBuffer := aws.NewWriteAtBuffer(a)
-	s3ReaderObj.On("Download", mock.AnythingOfType("*s3.GetObjectInput")).Return(fileBuffer, nil)
+	fn := func(r *request.Request) error { return nil }
+	newReq, _ := http.NewRequest(http.MethodGet, testURL, nil)
+
+	req := &request.Request{
+		ClientInfo:  metadata.ClientInfo{Endpoint: testURL},
+		Operation:   &request.Operation{BeforePresignFn: fn},
+		HTTPRequest: newReq,
+	}
+	s3ReaderObj.On("GetDownloadURL", mock.AnythingOfType("*s3.GetObjectInput")).Return(req, nil)
 
 	s3service := service{region, bucket, bucketPrefix, s3ReaderObj}
-	result, err := s3service.DownloadArchiveFromS3(fileName)
+	result, err := s3service.GetDownloadURLForFile(fileName)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, 3, len(result))
 	s3ReaderObj.AssertExpectations(t)
 }
 
 func TestDownloadArchiveFromS3WithError(t *testing.T) {
 	s3ReaderObj := new(s3ReaderMock)
-	s3ReaderObj.On("Download", mock.AnythingOfType("*s3.GetObjectInput")).Return(nil, fmt.Errorf("new error"))
+	s3ReaderObj.On("GetDownloadURL", mock.AnythingOfType("*s3.GetObjectInput")).Return(nil, fmt.Errorf("new error"))
 
 	s3service := service{region, bucket, bucketPrefix, s3ReaderObj}
-	result, err := s3service.DownloadArchiveFromS3(fileName)
+	result, err := s3service.GetDownloadURLForFile(fileName)
 
 	assert.Error(t, err)
-	assert.Nil(t, result)
+	assert.Equal(t, "", result)
 	s3ReaderObj.AssertExpectations(t)
 }

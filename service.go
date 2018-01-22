@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/aws/aws-sdk-go/aws"
@@ -11,7 +12,7 @@ import (
 // S3Service interface responsible for read/download operations using S3Reader interface
 type S3Service interface {
 	RetrieveArchivesFromS3() ([]ZipFile, error)
-	DownloadArchiveFromS3(fileName string) ([]byte, error)
+	GetDownloadURLForFile(fileName string) (string, error)
 }
 
 type service struct {
@@ -60,19 +61,25 @@ func (s service) RetrieveArchivesFromS3() ([]ZipFile, error) {
 	return zipFiles, nil
 }
 
-// DownloadArchiveFromS3 downloads a file from AWS S3 and returns an array of bytes
-func (s service) DownloadArchiveFromS3(fileName string) ([]byte, error) {
-	log.Println("Starting to download archives...")
+// GetDownloadURLForFile returns an download URL for an AWS S3 file
+func (s service) GetDownloadURLForFile(fileName string) (string, error) {
+	log.Printf("Getting download URL for file: %s", fileName)
 	input := &s3.GetObjectInput{
 		Bucket: aws.String(s.awsBucketName),
 		Key:    aws.String(s.awsBucketPrefix + "/" + fileName),
 	}
 
-	result, err := s.s3Reader.Download(input)
+	req, err := s.s3Reader.GetDownloadURL(input)
 	if err != nil {
 		log.Printf("Unable to download item %q, %v", fileName, err)
-		return nil, err
+		return "", err
 	}
 
-	return result.Bytes(), nil
+	url, err := req.Presign(5 * time.Minute)
+	if err != nil {
+		log.Printf("Unable to get download URL for file: %q, %v", fileName, err)
+		return "", err
+	}
+
+	return url, nil
 }

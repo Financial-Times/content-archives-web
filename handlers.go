@@ -45,20 +45,14 @@ func (h *Handler) DownloadHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Please specify the name of the file"))
 	}
 
-	bytes, err := h.s3Service.DownloadArchiveFromS3(name)
+	url, err := h.s3Service.GetDownloadURLForFile(name)
 	if err != nil {
 		log.Println("Unable to download archive from S3", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Unable to download archive from S3"))
 	}
 
-	w.Header().Add("Content-Disposition", "attachment; filename="+name)
-	_, err = w.Write(bytes)
-	if err != nil {
-		log.Println("Could not start file download", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Could not start file download"))
-	}
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 // AuthHandler middleware handler that adds authentication for the initial handler
