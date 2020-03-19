@@ -6,8 +6,11 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	_ "github.com/heroku/x/hmetrics/onload"
 )
+
+var sessionStore *sessions.CookieStore
 
 func main() {
 	port := os.Getenv("PORT")
@@ -30,14 +33,59 @@ func main() {
 		log.Fatal("$AWS_BUCKET_PREFIX must be set")
 	}
 
+	oktaClientID := os.Getenv("OKTA_CLIENT_ID")
+	if oktaClientID == "" {
+		log.Fatal("$OKTA_CLIENT_ID must be set")
+	}
+
+	oktaClientSecret := os.Getenv("OKTA_CLIENT_SECRET")
+	if oktaClientSecret == "" {
+		log.Fatal("$OKTA_CLIENT_SECRET must be set")
+	}
+
+	oktaScope := os.Getenv("OKTA_SCOPE")
+	if oktaScope == "" {
+		oktaScope = "openid name offline_access"
+	}
+
+	issuer := os.Getenv("ISSUER")
+	if issuer == "" {
+		log.Fatal("ISSUER must be set")
+	}
+
+	sessionKey := os.Getenv("SESSION_KEY")
+	if sessionKey == "" {
+		log.Fatal("$SESSION_KEY must be set")
+	}
+
+	callbackURL := os.Getenv("CALLBACK_URL")
+	if callbackURL == "" {
+		log.Fatal("$CALLBACK_URL must be set")
+	}
+
+	sessionStore = sessions.NewCookieStore([]byte(sessionKey))
 	s3Service := NewS3Service(awsRegion, awsBucketName, awsBucketPrefix)
 	healthCheck := HealthCheck{awsBucketName, awsBucketPrefix}
-	appHandler := NewHandler(s3Service)
+	appHandler := NewHandler(s3Service, HandlerConfig{
+		oktaClientID,
+		oktaClientSecret,
+		oktaScope,
+		issuer,
+		sessionKey,
+		callbackURL,
+	})
+
+	// Set default Max-Age for the session cookie for one hour
+	sessionStore.MaxAge(3600)
 
 	r := mux.NewRouter()
 	// load static files
 	staticH := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
 	r.PathPrefix("/static/").Handler(staticH)
+
+	// okta reserved routes
+	r.HandleFunc("/login", appHandler.LoginHandler)
+	r.HandleFunc("/authorization-code/callback", appHandler.AuthCodeCallbackHandler)
 
 	// use middlewares to restrict access to FT members only
 	r.Handle("/", appHandler.AuthHandler(appHandler.HomepageHandler))

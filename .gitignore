@@ -1,5 +1,7 @@
 .env
 .docker_build/
+.vscode/
+.idea/
 .DS_Store
 /content-archives-web*
 vendor/*/
