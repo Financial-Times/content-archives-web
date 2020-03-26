@@ -8,11 +8,16 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	_ "github.com/heroku/x/hmetrics/onload"
+	"github.com/joho/godotenv"
 )
 
 var sessionStore *sessions.CookieStore
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Unable to load .env file, falling back to global env variables")
+	}
 	port := os.Getenv("PORT")
 	if port == "" {
 		log.Fatal("$PORT must be set")
@@ -95,7 +100,7 @@ func main() {
 	// health should be accessible for anyone
 	r.HandleFunc("/__health", healthCheck.Health())
 
-	err := http.ListenAndServe(":"+port, r)
+	err = http.ListenAndServe(":"+port, r)
 	if err != nil {
 		panic(err)
 	}

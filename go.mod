@@ -13,6 +13,7 @@ require (
 	github.com/gorilla/sessions v1.2.0
 	github.com/heroku/x v0.0.0-20170915154945-0dad4c39389d
 	github.com/jmespath/go-jmespath v0.3.0 // indirect
+	github.com/joho/godotenv v1.3.0
 	github.com/lestrrat-go/jwx v0.9.1 // indirect
 	github.com/okta/okta-jwt-verifier-golang v0.1.0
 	github.com/okta/samples-golang v0.0.0-20200205162628-387e101946d7 // indirect
