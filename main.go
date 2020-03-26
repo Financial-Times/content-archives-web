@@ -69,6 +69,10 @@ func main() {
 	}
 
 	sessionStore = sessions.NewCookieStore([]byte(sessionKey))
+	// Set default Max-Age for the session cookie for 12 hours
+	sessionStore.Options.MaxAge = 43200
+	sessionStore.Options.HttpOnly = true
+	sessionStore.Options.Secure = true
 	s3Service := NewS3Service(awsRegion, awsBucketName, awsBucketPrefix)
 	healthCheck := HealthCheck{awsBucketName, awsBucketPrefix}
 	appHandler := NewHandler(s3Service, HandlerConfig{
@@ -79,9 +83,6 @@ func main() {
 		sessionKey,
 		callbackURL,
 	})
-
-	// Set default Max-Age for the session cookie for one hour
-	sessionStore.MaxAge(3600)
 
 	r := mux.NewRouter()
 	// load static files
