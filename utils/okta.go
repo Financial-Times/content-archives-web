@@ -19,8 +19,8 @@ func GenerateNonce() (string, error) {
 	return base64.URLEncoding.EncodeToString(nonceBytes), nil
 }
 
-// VerifyToken function, returns whether token is valid or not
-func VerifyToken(t string, nonce string, oktaClientID string, issuer string) (*verifier.Jwt, error) {
+// VerifyTokens function, returns whether token is valid or not
+func VerifyTokens(idToken string, accessToken string, nonce string, oktaClientID string, issuer string) (bool, error) {
 	tv := map[string]string{}
 	tv["nonce"] = nonce
 	tv["aud"] = oktaClientID
@@ -29,15 +29,24 @@ func VerifyToken(t string, nonce string, oktaClientID string, issuer string) (*v
 		ClaimsToValidate: tv,
 	}
 
-	result, err := jv.New().VerifyIdToken(t)
+	_, err := jv.New().VerifyIdToken(idToken)
 
 	if err != nil {
-		return nil, fmt.Errorf("%s", err)
+		return false, fmt.Errorf("%s", err)
 	}
 
-	if result != nil {
-		return result, nil
+	tv["aud"] = "api://sso"
+	tv["cid"] = oktaClientID
+	jv = verifier.JwtVerifier{
+		Issuer:           issuer,
+		ClaimsToValidate: tv,
 	}
 
-	return nil, fmt.Errorf("token could not be verified: %s", "")
+	_, err = jv.New().VerifyAccessToken(accessToken)
+
+	if err != nil {
+		return false, fmt.Errorf("%s", err)
+	}
+
+	return true, nil
 }

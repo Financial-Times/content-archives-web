@@ -90,26 +90,55 @@ func (h *Handler) DownloadHandler(w http.ResponseWriter, r *http.Request) {
 // AuthHandler handler for guarding paths requiting authentication
 func (h *Handler) AuthHandler(f http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, err := sessionStore.Get(r, h.config.sessionKey)
+		if isAuthenticated(r, h.config.sessionKey) {
+			idToken, _ := getSessionKey(r, h.config.sessionKey, "id_token")
+			accessToken, _ := getSessionKey(r, h.config.sessionKey, "access_token")
 
-		if err != nil || session.Values["id_token"] == nil || session.Values["id_token"] == "" {
+			_, err := oktaUtils.VerifyTokens(idToken, accessToken, nonce, h.config.oktaClientID, h.config.issuer)
+
+			if err != nil {
+				// refresh token
+			}
+
+			var handler http.Handler = http.HandlerFunc(f)
+
+			handler.ServeHTTP(w, r)
+		} else {
 			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
-			return
 		}
-
-		idToken := session.Values["id_token"].(string)
-
-		_, err = oktaUtils.VerifyToken(idToken, nonce, h.config.oktaClientID, h.config.issuer)
-
-		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
-			return
-		}
-
-		var handler http.Handler = http.HandlerFunc(f)
-
-		handler.ServeHTTP(w, r)
 	})
+}
+
+func isAuthenticated(r *http.Request, sessionKey string) bool {
+	session, err := sessionStore.Get(r, sessionKey)
+
+	if err != nil {
+		return false
+	}
+
+	if session.Values["id_token"] == nil || session.Values["id_token"] == "" {
+		return false
+	}
+
+	if session.Values["access_token"] == nil || session.Values["access_token"] == "" {
+		return false
+	}
+
+	return true
+}
+
+func getSessionKey(r *http.Request, sessionKey string, key string) (string, error) {
+	session, err := sessionStore.Get(r, sessionKey)
+
+	if err != nil {
+		return "", err
+	}
+
+	if session.Values[key] == nil {
+		return "", nil
+	}
+
+	return session.Values[key].(string), nil
 }
 
 // LoginHandler handler initiating the login workflow with Okta
@@ -131,7 +160,7 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectPath, http.StatusMovedPermanently)
 }
 
-// AuthCodeCallbackHandler is the default callback handler after successfull login with Okta
+// AuthCodeCallbackHandler is the default callback handler after successful login with Okta
 func (h *Handler) AuthCodeCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	// Check the state that was returned in the query string is the same as the above state
 	if r.URL.Query().Get("state") != state {
@@ -144,31 +173,28 @@ func (h *Handler) AuthCodeCallbackHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	exchange := h.exchangeCode(r.URL.Query().Get("code"), r)
-
+	exchange := h.retrieveToken(r.URL.Query().Get("code"), r)
 	session, err := sessionStore.Get(r, h.config.sessionKey)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	_, err = oktaUtils.VerifyToken(exchange.IDToken, nonce, h.config.oktaClientID, h.config.issuer)
+	_, err = oktaUtils.VerifyTokens(exchange.IDToken, exchange.AccessToken, nonce, h.config.oktaClientID, h.config.issuer)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	if err == nil {
-		session.Values["id_token"] = exchange.IDToken
-		session.Values["access_token"] = exchange.AccessToken
+	session.Values["id_token"] = exchange.IDToken
+	session.Values["access_token"] = exchange.AccessToken
 
-		session.Save(r, w)
-	}
+	session.Save(r, w)
 
 	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
 // private function for login
-func (h *Handler) exchangeCode(code string, r *http.Request) Exchange {
+func (h *Handler) retrieveToken(code string, r *http.Request) Exchange {
 	authHeader := base64.StdEncoding.EncodeToString(
 		[]byte(h.config.oktaClientID + ":" + h.config.oktaClientSecret))
 

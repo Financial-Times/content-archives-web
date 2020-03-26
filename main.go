@@ -45,7 +45,7 @@ func main() {
 
 	oktaScope := os.Getenv("OKTA_SCOPE")
 	if oktaScope == "" {
-		oktaScope = "openid name offline_access"
+		oktaScope = "openid offline_access"
 	}
 
 	issuer := os.Getenv("ISSUER")
@@ -89,6 +89,7 @@ func main() {
 
 	// use middlewares to restrict access to FT members only
 	r.Handle("/", appHandler.AuthHandler(appHandler.HomepageHandler))
+	// r.HandleFunc("/", appHandler.HomepageHandler)
 	r.Handle("/download/{prefix}/{name}", appHandler.AuthHandler(appHandler.DownloadHandler))
 
 	// health should be accessible for anyone
