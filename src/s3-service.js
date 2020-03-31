@@ -1,4 +1,5 @@
 const S3 = require('aws-sdk/clients/s3');
+const moment = require('moment');
 
 const s3Client = new S3();
 
@@ -23,7 +24,7 @@ const listArchives = new Promise((resolve, reject) => s3Client.listObjectsV2({
   } else {
     const result = data.Contents.map((s3Object) => ({
       name: s3Object.Key,
-      lastModified: s3Object.LastModified,
+      lastModified: moment(s3Object.LastModified).format('YYYY-MM-DD hh:mm:ss'),
       size: formatBytes(s3Object.Size),
     }));
     resolve(result);

@@ -21,7 +21,7 @@ npm -v
 npm install
 ```
 
-+3) Rename `.env.example` file to `.env` and populate the file using the information available [here](https://dashboard.heroku.com/apps/upp-exports/settings) under *Config Vars* section. For the Okta related secrets login into Vault, navigate to the proper folder based on the information from the following [section](https://github.com/Financial-Times/okta/wiki/Config-Guide#what-next). On how to get started with Vault refer to the following [documentation](https://github.com/Financial-Times/vault/wiki/Getting-Started-With-Vault).
+3) Rename `.env.example` file to `.env` and populate the file using the information available [here](https://dashboard.heroku.com/apps/upp-exports/settings) under *Config Vars* section. For the Okta related secrets login into Vault, navigate to the proper folder based on the information from the following [section](https://github.com/Financial-Times/okta/wiki/Config-Guide#what-next). On how to get started with Vault refer to the following [documentation](https://github.com/Financial-Times/vault/wiki/Getting-Started-With-Vault).
 
 4) Run the following command:
 
