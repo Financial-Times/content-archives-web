@@ -1,0 +1,71 @@
+version: 2.1
+
+references:
+  filter_all_branches: &filter_all_branches
+    branches:
+      only: /.*/
+    tags:
+      ignore: /.*/
+  filters_only_master_branch: &filters_only_master_branch
+    branches:
+      only: /master/
+
+orbs:
+  snyk: snyk/snyk@0.0.8
+  change-api: financial-times/change-api@0.25.0
+
+commands:
+  test:
+    steps:
+      - checkout
+      - run:
+          name: Install package
+          command: npm install .
+      - run:
+          name: Lint
+          command: npm run lint
+  snyk:
+    steps:
+      - checkout
+      - snyk/scan:
+          fail-on-issues: true
+          monitor-on-build: true
+
+executors:
+  node:
+    docker:
+      - image: circleci/node:lts
+
+jobs:
+  lint_test:
+    executor: node
+    steps:
+      - test
+  snyk:
+    executor: node
+    steps:
+      - snyk
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - lint_test:
+          filters:
+            <<: *filter_all_branches
+  snyk:
+    jobs:
+      - snyk:
+          context: cm-team-snyk
+          filters:
+            <<: *filter_all_branches
+
+  release:
+    jobs:
+      - change-api/release-log:
+          changeApiKey: '${CHANGE_API_KEY}'
+          systemCode: 'upp-exports'
+          environment: 'prod'
+          slackChannels: 'upp-changes,ft-changes'
+          filters:
+            <<: *filters_only_master_branch

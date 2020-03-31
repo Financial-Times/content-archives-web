@@ -3,3 +3,4 @@
 .DS_Store
 /content-archives-web*
 vendor/*/
+/node_modules
