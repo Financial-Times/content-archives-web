@@ -39,7 +39,7 @@
                 <tr>
                   <td><a href="/download/<%= archive.name %>"><%= archive.name %></a></td>
                   <td><%= archive.size %></td>
-                  <td><%= archive.lastModified.toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-').replace(',','') %></td>
+                  <td><%= archive.lastModified %></td>
                 </tr>
               <% }); %>
             </tbody>
