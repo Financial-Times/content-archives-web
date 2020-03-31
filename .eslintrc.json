@@ -1,0 +1,26 @@
+{
+    "env": {
+      "node": true,
+      "mocha": true
+    },
+    "extends": [
+      "airbnb-base",
+      "plugin:security/recommended"
+    ],
+    "plugins": [
+      "security"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2018
+    },
+    "rules": {
+      "max-len": [
+        1,
+        {
+          "code": 100,
+          "ignoreComments": true
+        }
+      ],
+      "no-param-reassign": 1
+    }
+  }

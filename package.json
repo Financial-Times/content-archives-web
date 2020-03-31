@@ -1,0 +1,50 @@
+{
+  "name": "content-archives-web",
+  "version": "2.0.0",
+  "description": "Simplistic UI for exposing the zip archives for automated content export",
+  "main": "index.js",
+  "scripts": {
+    "start": "pm2-runtime start ecosystem.config.js",
+    "start:dev": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Financial-Times/content-archives-web.git"
+  },
+  "keywords": [
+    "content",
+    "archives",
+    "content&metadata",
+    "exports"
+  ],
+  "author": "universal-publishing",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Financial-Times/content-archives-web/issues"
+  },
+  "homepage": "https://github.com/Financial-Times/content-archives-web#readme",
+  "dependencies": {
+    "@financial-times/express-web-service": "^3.4.4",
+    "@financial-times/health-check": "^1.11.0",
+    "@financial-times/n-logger": "^6.1.1",
+    "@financial-times/okta-express-middleware": "0.0.4",
+    "aws-sdk": "^2.649.0",
+    "cookie-session": "^1.4.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.0.2",
+    "express": "^4.17.1",
+    "pm2": "^4.2.3"
+  },
+  "engines": {
+    "node": "12.x"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-security": "^1.4.0"
+  }
+}

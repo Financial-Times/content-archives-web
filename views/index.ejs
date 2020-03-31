@@ -35,13 +35,13 @@
               <th>Last modified</th>
             </thead>
             <tbody>
-              {{range .}}
-              <tr>
-                <td><a href="/download/{{ .Name }}">{{ .Name }}</a></td>
-                <td>{{ .Size}}</td>
-                <td>{{ .LastModified}}</td>
-              </tr>
-              {{ end }}
+              <% archives.forEach((archive) => { %>
+                <tr>
+                  <td><a href="/download/<%= archive.name %>"><%= archive.name %></a></td>
+                  <td><%= archive.size %></td>
+                  <td><%= archive.lastModified.toLocaleString('en-GB', { hour12: false }).replace(/\//g, '-').replace(',','') %></td>
+                </tr>
+              <% }); %>
             </tbody>
           </table>
         </div>
