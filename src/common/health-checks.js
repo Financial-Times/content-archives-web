@@ -32,6 +32,7 @@ const health = new HealthCheck({
     }),
   ],
 });
+
 const healthCheckMiddleware = expressWebService({
   about: {
     systemCode: 'upp-exports',
@@ -40,7 +41,7 @@ const healthCheckMiddleware = expressWebService({
     serviceTier: 'bronze',
   },
   healthCheck: health.checks(),
-  manifestPath: join(__dirname, '..', 'package.json'),
+  manifestPath: join(__dirname, '../..', 'package.json'),
 });
 
 module.exports = healthCheckMiddleware;
