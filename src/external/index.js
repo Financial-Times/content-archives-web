@@ -2,11 +2,25 @@ const { join } = require('path');
 const express = require('express');
 const logger = require('@financial-times/n-logger').default;
 const cookieParser = require('cookie-parser');
-const { get } = require('../common/https');
-const { listArchives, downloadArchive } = require('../common/s3-service');
-const healthCheckMiddleware = require('../common/health-checks');
-const messages = require('../common/messages.json');
+const { getSession } = require('../common/sessionApi');
+const { listArchives, downloadArchive } = require('../aws/s3-service');
+const { getPolicyByUser } = require('../aws/dynamo-service');
+const { applyPolicies, hasPolicyAccess } = require('../common/policies');
+const healthCheckMiddleware = require('../middleware/health-checks');
+const {
+  downloadArchiveErrorLog,
+  listArchivesErrorLog,
+  gettingUserSessionErrorLog,
+  listingUserPoliciesErrorLog,
+  noPoliciesForUserLog,
+  errorMessage,
+  forbiddenMessage,
+  forbiddenResourceAccessLog,
+  publicContact,
+} = require('../common/messages.json');
 
+const placeholderRegEx = /{placeholder}/i;
+const resourcePlaceholderRegEx = /{resource_placeholder}/i;
 
 const register = (cb) => {
   const app = express();
@@ -14,11 +28,16 @@ const register = (cb) => {
   app.set('view engine', 'ejs');
   app.use('/static', express.static(join(process.cwd(), 'static')));
   app.use(healthCheckMiddleware);
-  app.use(cookieParser())
+  app.use(cookieParser());
 
   const error = (res, err, msg) => {
-    logger.error('Error retrieving content from Amazon S3', err);
-    res.status(500).send(msg);
+    logger.error(msg, err);
+    res.status(500).send(errorMessage.replace(placeholderRegEx, publicContact));
+  };
+
+  const forbidden = (res, msg) => {
+    logger.warn(msg);
+    res.status(403).send(forbiddenMessage);
   };
 
   const redirectToLogin = (res) => {
@@ -30,35 +49,57 @@ const register = (cb) => {
   };
 
   app.use((req, res, next) => {
-      if (req.cookies['FTSession_s'] === undefined) {
-        redirectToLogin(res);
-      } else {
-        next();
-      }
+    if (req.cookies.FTSession_s === undefined) {
+      redirectToLogin(res);
+    } else {
+      next();
+    }
   });
 
   app.use((req, res, next) => {
-    const sessionId = req.cookies['FTSession_s'];
+    const sessionId = req.cookies.FTSession_s;
 
-    get(sessionId)
+    getSession(sessionId)
       .then((userSession) => {
-        req.user = userSession.uuid;
+        req.userId = userSession.uuid;
         next();
       })
-      .catch((err) => error(res, err, 'Failed to load membership session'))
+      .catch((err) => error(res, err, gettingUserSessionErrorLog.replace(placeholderRegEx, sessionId)));
+  });
+
+  app.use((req, res, next) => {
+    const { userId } = req;
+
+    getPolicyByUser(userId)
+      .then((userPolicies) => {
+        if (userPolicies) {
+          req.userPolicies = userPolicies;
+          next();
+        } else {
+          forbidden(res, noPoliciesForUserLog.replace(placeholderRegEx, userId));
+        }
+      })
+      .catch((err) => error(res, err, listingUserPoliciesErrorLog.replace(placeholderRegEx, userId)));
   });
 
   app.get('/', (req, res) => {
-    console.log(req.user);
+    const { userPolicies } = req;
 
     listArchives
-      .then((archives) => res.render('index', { archives }))
-      .catch((err) => error(res, err, messages.listArchivesError));
+      .then((archives) => res.render('index', { archives: applyPolicies(archives, userPolicies) }))
+      .catch((err) => error(res, err, listArchivesErrorLog.replace(placeholderRegEx, publicContact)));
   });
 
   app.get('/download/:prefix/:name', (req, res) => {
     const { prefix, name } = req.params;
-    downloadArchive(join(prefix, name), res, (err) => error(res, err, messages.listArchivesError));
+    const { userPolicies, userId } = req;
+    const fullName = join(prefix, name);
+
+    if (hasPolicyAccess(fullName, userPolicies)) {
+      downloadArchive(fullName, res, (err) => error(res, err, downloadArchiveErrorLog.replace(placeholderRegEx, publicContact)));
+    } else {
+      forbidden(res, forbiddenResourceAccessLog.replace(placeholderRegEx, userId).replace(resourcePlaceholderRegEx, name));
+    }
   });
 
   // Start the server
@@ -66,5 +107,5 @@ const register = (cb) => {
 };
 
 module.exports = {
-  register
-}
+  register,
+};

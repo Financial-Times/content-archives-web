@@ -1,4 +1,12 @@
 {
-    "downloadArchiveError": "An error occurred while downloading archive, please contact #universal-publishing slack channel for help!",
-    "listArchivesError": "An error occurred while listing archives, please contact #universal-publishing slack channel for help!"
+    "downloadArchiveErrorLog": "An error occurred while downloading archive {placeholder}",
+    "listArchivesErrorLog": "An error occurred while listing archives",
+    "gettingUserSessionErrorLog": "Failed to load membership session for sessionId {placeholder}",
+    "listingUserPoliciesErrorLog": "Failed to load policies for userId {placeholder}",
+    "noPoliciesForUserLog": "No available policies for userId {placeholder}",
+    "forbiddenResourceAccessLog": "User with userId {placeholder} tries to access resource {resource_placeholder}",
+    "privateContact": "#upp-prod-incidents slack channel",
+    "publicContact": "FT's customer support",
+    "errorMessage": "An error occurred, please contact {placeholder} for help!}",
+    "forbiddenMessage": "The following resource is not available!"
 }

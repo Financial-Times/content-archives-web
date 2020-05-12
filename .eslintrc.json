@@ -22,5 +22,11 @@
         }
       ],
       "no-param-reassign": 1
-    }
+    },
+    "overrides": [{
+      "files": ["test/**"],
+      "rules": {
+          "no-unused-expressions": "off"
+      }
+    }]
   }

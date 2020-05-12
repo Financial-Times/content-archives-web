@@ -6,7 +6,7 @@
   "scripts": {
     "start": "pm2-runtime start ecosystem.config.js",
     "start:dev": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "export SESSION_API_KEY=foo && mocha test/**",
     "lint": "eslint ."
   },
   "repository": {
@@ -30,7 +30,7 @@
     "@financial-times/health-check": "^1.11.0",
     "@financial-times/n-logger": "^6.1.1",
     "@financial-times/okta-express-middleware": "0.0.4",
-    "aws-sdk": "^2.649.0",
+    "aws-sdk": "^2.675.0",
     "cookie-parser": "^1.4.5",
     "cookie-session": "^1.4.0",
     "dotenv": "^8.2.0",
@@ -43,10 +43,13 @@
     "node": "12.x"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-security": "^1.4.0"
+    "eslint-plugin-security": "^1.4.0",
+    "mocha": "^7.1.2",
+    "nock": "^12.0.3"
   }
 }

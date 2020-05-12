@@ -1,7 +1,7 @@
 const { join } = require('path');
 const HealthCheck = require('@financial-times/health-check');
 const expressWebService = require('@financial-times/express-web-service');
-const { bucketHealth } = require('./s3-service');
+const { bucketHealth } = require('../aws/s3-service');
 
 class S3BucketCheck extends HealthCheck.Check {
   run() {

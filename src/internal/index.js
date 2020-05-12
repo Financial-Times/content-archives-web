@@ -3,9 +3,16 @@ const express = require('express');
 const session = require('cookie-session');
 const OktaMiddleware = require('@financial-times/okta-express-middleware');
 const logger = require('@financial-times/n-logger').default;
-const { listArchives, downloadArchive } = require('./../common/s3-service');
-const healthCheckMiddleware = require('./../common/health-checks');
-const messages = require('./../common/messages.json');
+const { listArchives, downloadArchive } = require('../aws/s3-service');
+const healthCheckMiddleware = require('../middleware/health-checks');
+const {
+  downloadArchiveErrorLog,
+  listArchivesErrorLog,
+  errorMessage,
+  privateContact,
+} = require('../common/messages.json');
+
+const placeholderRegEx = /{placeholder}/i;
 
 const register = (cb) => {
   const app = express();
@@ -32,19 +39,19 @@ const register = (cb) => {
   app.use(okta.verifyJwts());
 
   const error = (res, err, msg) => {
-    logger.error('Error retrieving content from Amazon S3', err);
-    res.status(500).send(msg);
+    logger.error(msg, err);
+    res.status(500).send(errorMessage.replace(placeholderRegEx, privateContact));
   };
 
   app.get('/', (_, res) => {
     listArchives
       .then((archives) => res.render('index', { archives }))
-      .catch((err) => error(res, err, messages.listArchivesError));
+      .catch((err) => error(res, err, listArchivesErrorLog));
   });
 
   app.get('/download/:prefix/:name', (req, res) => {
     const { prefix, name } = req.params;
-    downloadArchive(join(prefix, name), res, (err) => error(res, err, messages.listArchivesError));
+    downloadArchive(join(prefix, name), res, (err) => error(res, err, downloadArchiveErrorLog.replace(placeholderRegEx, privateContact)));
   });
 
   // Start the server
@@ -52,5 +59,5 @@ const register = (cb) => {
 };
 
 module.exports = {
-  register
-}
+  register,
+};
