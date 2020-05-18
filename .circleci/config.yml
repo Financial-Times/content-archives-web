@@ -25,7 +25,7 @@ commands:
           name: Lint
           command: npm run lint
       - run:
-          name: Lint
+          name: Test
           command: npm test
   snyk:
     steps:
