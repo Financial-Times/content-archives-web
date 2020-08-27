@@ -4,21 +4,13 @@ const http = require('http');
 const { join } = require('path');
 const express = require('express');
 const session = require('cookie-session');
-const OktaMiddleware = require('@financial-times/okta-express-middleware');
 const logger = require('@financial-times/n-logger').default;
 const { listArchives, downloadArchive } = require('./src/s3-service');
+const { getUserAllowlist } = require("./src/dynamodb-service");
 const healthCheckMiddleware = require('./src/health-checks');
 const messages = require('./src/messages.json');
 
 const app = express();
-
-const okta = new OktaMiddleware({
-  client_id: process.env.OKTA_CLIENT_ID,
-  client_secret: process.env.OKTA_CLIENT_SECRET,
-  issuer: process.env.ISSUER,
-  appBaseUrl: process.env.APP_BASE_URL,
-  scope: 'openid name offline_access',
-});
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -29,9 +21,6 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.use('/static', express.static(join(__dirname, 'static')));
 app.use(healthCheckMiddleware);
-app.use(okta.router);
-app.use(okta.ensureAuthenticated());
-app.use(okta.verifyJwts());
 
 const error = (res, err, msg) => {
   logger.error('Error retrieving content from Amazon S3', err);
@@ -39,9 +28,14 @@ const error = (res, err, msg) => {
 };
 
 app.get('/', (_, res) => {
-  listArchives
-    .then((archives) => res.render('index', { archives }))
-    .catch((err) => error(res, err, messages.listArchivesError));
+  getUserAllowlist("2e9ae5fe-c02c-4e49-a704-617e871c82b8")
+    .then(allowList => {
+      listArchives
+        .then(archives => archives.filter(i => allowList.indexOf(i.name) >= 0))
+        .then((archives) => res.render('index', { archives }))
+        .catch((err) => error(res, err, messages.listArchivesError));
+    })
+    .catch(err => error(res, err, "Unable to load a list of allowed files"));
 });
 
 app.get('/download/:prefix/:name', (req, res) => {
