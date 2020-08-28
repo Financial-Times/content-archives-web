@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "pm2-runtime start ecosystem.config.js",
-    "start:dev": "node index.js",
+    "start:dev": "node local.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ."
   },
@@ -31,20 +31,25 @@
     "@financial-times/n-logger": "^6.1.1",
     "@financial-times/okta-express-middleware": "0.0.4",
     "aws-sdk": "^2.740.0",
+    "cookie-parser": "^1.4.5",
     "cookie-session": "^1.4.0",
     "dotenv": "^8.2.0",
     "ejs": "^3.0.2",
     "express": "^4.17.1",
+    "graphql.js": "^0.6.6",
     "moment": "^2.24.0",
-    "pm2": "^4.2.3"
+    "pm2": "^4.2.3",
+    "querystring": "^0.2.0"
   },
   "engines": {
     "node": "12.x"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-config-google": "^0.14.0",
+    "eslint-plugin-html": "^6.0.3",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-security": "^1.4.0"
   }
