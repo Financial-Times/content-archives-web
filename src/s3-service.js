@@ -17,22 +17,22 @@ function formatBytes(bytes, decimals = 2) {
 
 const listArchives = new Promise((resolve, reject) => s3Client.listObjectsV2({
   Bucket: process.env.AWS_BUCKET_NAME,
-  Prefix: process.env.AWS_BUCKET_PREFIX,
+  Prefix: process.env.AWS_BUCKET_PREFIX
 }, (err, data) => {
   if (err) {
     reject(err);
   } else {
-    const result = data.Contents.map((s3Object) => ({
+    const result = data.Contents.map(s3Object => ({
       name: s3Object.Key,
       lastModified: moment(s3Object.LastModified).format('YYYY-MM-DD hh:mm:ss'),
-      size: formatBytes(s3Object.Size),
+      size: formatBytes(s3Object.Size)
     }));
     resolve(result);
   }
 }));
 
 const bucketHealth = new Promise((resolve, reject) => s3Client.headBucket({
-  Bucket: process.env.AWS_BUCKET_NAME,
+  Bucket: process.env.AWS_BUCKET_NAME
 }, (err, data) => {
   if (err) {
     reject(err);
@@ -43,7 +43,7 @@ const bucketHealth = new Promise((resolve, reject) => s3Client.headBucket({
 
 const downloadArchive = (key, res, errorCb) => s3Client.getObject({
   Bucket: process.env.AWS_BUCKET_NAME,
-  Key: key,
+  Key: key
 }).on('httpHeaders', function handler(_, headers) {
   res.set('Content-Length', headers['content-length']);
   res.set('Content-Type', headers['content-type']);
@@ -52,11 +52,11 @@ const downloadArchive = (key, res, errorCb) => s3Client.getObject({
     .createUnbufferedStream()
     .pipe(res);
 })
-  .on('error', (err) => errorCb(err))
+  .on('error', err => errorCb(err))
   .send();
 
 module.exports = {
   listArchives,
   downloadArchive,
-  bucketHealth,
+  bucketHealth
 };

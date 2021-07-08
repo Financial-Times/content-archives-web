@@ -4,3 +4,4 @@
 /content-archives-web*
 vendor/*/
 /node_modules
+/sslcert/*
