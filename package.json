@@ -29,14 +29,14 @@
     "@financial-times/express-web-service": "^3.4.4",
     "@financial-times/health-check": "^1.11.0",
     "@financial-times/n-logger": "^6.1.1",
-    "@financial-times/okta-express-middleware": "0.0.4",
+    "@financial-times/okta-express-middleware": "0.0.9",
     "aws-sdk": "^2.649.0",
     "cookie-session": "^1.4.0",
     "dotenv": "^8.2.0",
     "ejs": "^3.0.2",
     "express": "^4.17.1",
     "moment": "^2.24.0",
-    "pm2": "^4.2.3"
+    "pm2": "^4.4.0"
   },
   "engines": {
     "node": "12.x"
