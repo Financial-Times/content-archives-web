@@ -32,7 +32,7 @@
     "@financial-times/okta-express-middleware": "0.0.4",
     "aws-sdk": "^2.649.0",
     "cookie-session": "^1.4.0",
-    "dotenv": "^8.2.0",
+    "dotenv": "^8.6.0",
     "ejs": "^3.0.2",
     "express": "^4.17.1",
     "moment": "^2.24.0",
