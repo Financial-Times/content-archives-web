@@ -27,16 +27,16 @@
   "homepage": "https://github.com/Financial-Times/content-archives-web#readme",
   "dependencies": {
     "@financial-times/express-web-service": "^3.4.4",
-    "@financial-times/health-check": "^1.11.0",
-    "@financial-times/n-logger": "^6.1.1",
-    "@financial-times/okta-express-middleware": "0.0.4",
-    "aws-sdk": "^2.649.0",
+    "@financial-times/health-check": "^2.1.9",
+    "@financial-times/n-logger": "^6.2.0",
+    "@financial-times/okta-express-middleware": "^1.0.3",
+    "aws-sdk": "^2.814.0",
     "cookie-session": "^1.4.0",
     "dotenv": "^8.2.0",
-    "ejs": "^3.0.2",
+    "ejs": "^3.1.6",
     "express": "^4.17.1",
     "moment": "^2.24.0",
-    "pm2": "^4.2.3"
+    "pm2": "^5.1.2"
   },
   "engines": {
     "node": "12.x"
