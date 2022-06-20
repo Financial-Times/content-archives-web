@@ -2,63 +2,64 @@
 
 <head>
   <title>Daily exports</title>
-  <link rel="stylesheet" href="https://www.ft.com/__origami/service/build/v2/bundles/css?modules=o-table" />
-  <link rel="stylesheet" href="https://www.ft.com/__origami/service/build/v2/bundles/css?modules=o-header-services" />
-  <link rel="stylesheet" href="https://www.ft.com/__origami/service/build/v2/bundles/css?modules=o-techdocs" />
-  <link rel="stylesheet" type="text/css" href="/static/main.css" />
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css"></link>
-  <link rel="shortcut icon" type="image/x-icon" href="https://www.ft.com/__origami/service/image/v2/images/raw/ftlogo:brand-ft-logo-square-coloured?source=content-archives">
-  <script src="//www.ft.com/__origami/service/build/v2/bundles/js?modules=o-techdocs%407.0.2%2Co-fonts%40%5E3.0.0%2Co-grid%40%5E4.0.0"></script>
+  <link rel="stylesheet"
+        href="https://www.ft.com/__origami/service/build/v3/bundles/css?components=o-table@^9.2.5,o-fonts@^5.3.3,o-grid@^6.1.5,o-layout@^5.2.3,o-header-services@^5.2.3,o-footer-services@^4.2.3,o-autoinit@^3.1.3&brand=internal&system_code=upp-exports"/>
+  <link rel="stylesheet" type="text/css" href="/static/main.css"/>
 </head>
 
 <body>
-  <header class="o-header-services" data-o-component="o-header">
-    <div class="o-header-services__top o-header-services__container">
-      <div class="o-header-services__ftlogo"></div>
-      <div class="o-header-services__title">
-        <h1 class="o-header-services__product-name"><a href="/">Universal Publishing Platform</a></h1><span class="o-header-subrand__product-tagline ">Daily exports</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- Navigation menu and main content -->
-  <div class="o-techdocs-container">
-    <div class="o-techdocs-layout">
-      <!-- Main content (outer div for layout, inner for formatting) -->
-      <div class="o-techdocs-main">
-        <div class="o-techdocs-content">
-          <h4>Downloadable Content and Concept archives</h4>
-          <table class="o-table o-table--row-stripes" data-o-component="o-table">
-            <thead>
-              <th>File name</th>
-              <th>Size</th>
-              <th>Last modified</th>
-            </thead>
-            <tbody>
-              <% archives.forEach((archive) => { %>
-                <tr>
-                  <td><a href="/download/<%= archive.name %>"><%= archive.name %></a></td>
-                  <td><%= archive.size %></td>
-                  <td><%= archive.lastModified %></td>
-                </tr>
-              <% }); %>
-            </tbody>
-          </table>
+<div class="o-layout o-layout--landing" data-o-component="o-layout">
+  <div class="o-layout__header">
+    <header class="o-header-services" data-o-component="o-header">
+      <div class="o-header-services__top o-header-services__container">
+        <div class="o-header-services__logo"></div>
+        <div class="o-header-services__title">
+          <h1 class="o-header-services__product-name"><a href="/">Content &amp; Metadata Platform</a></h1><span
+                  class="o-header-subrand__product-tagline ">Daily exports</span>
         </div>
-        <!-- o-techdocs-content -->
       </div>
-      <!-- o-techdocs-main -->
-    </div>
-    <!-- /.o-techdocs-layout -->
+    </header>
   </div>
-  <!-- /.o-techdocs-container -->
 
-  <footer class="o-techdocs-footer">
-    <div class="o-techdocs-footer__inner">
-      <p class="o-techdocs-footer__secondary"><a href="https://github.com/Financial-Times/content-archives-web">View project on GitHub</a></p>
-      <p>&#xA9; THE FINANCIAL TIMES LTD. FT and 'Financial Times' are trademarks of The Financial Times Ltd.</p>
-    </div>
-  </footer>
+  <div class="o-layout__main o-layout-typography">
+    <h4>Downloadable Content and Concept archives</h4>
+    <table class="o-table o-table--row-stripes" data-o-component="o-table">
+      <thead>
+      <th>File name</th>
+      <th>Size</th>
+      <th>Last modified</th>
+      </thead>
+      <tbody>
+      <% archives.forEach((archive) => { %>
+        <tr>
+          <td><a href="/download/<%= archive.name %>"><%= archive.name %></a></td>
+          <td><%= archive.size %></td>
+          <td><%= archive.lastModified %></td>
+        </tr>
+      <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="o-layout__footer">
+    <footer class="o-footer-services">
+      <div class="o-footer-services__container">
+        <div class="o-footer-services__wrapper o-footer-services__wrapper--top">
+          <a class="o-footer-services__icon-link o-footer-services__icon-link--github" href="https://github.com/Financial-Times/content-archives-web">View project on GitHub</a>
+        </div>
+      </div>
+      <div class="o-footer-services__container">
+        <div class="o-footer-services__wrapper o-footer-services__wrapper--legal">
+          <div class="o-footer-services__links">
+            <a href="http://help.ft.com/help/legal-privacy/cookies/">Cookies</a>
+            <a href="http://help.ft.com/help/legal-privacy/copyright/copyright-policy/">Copyright</a>
+            <a href="http://help.ft.com/help/legal-privacy/privacy/" class="o-footer-services__bulletted-link">Privacy</a>
+            <a href="http://help.ft.com/help/legal-privacy/terms-conditions">Terms &amp; Conditions</a>
+          </div>
+          <p><span>&#xA9; THE FINANCIAL TIMES LTD.</span> FT and &apos;Financial Times&apos; are trademarks of The Financial Times Ltd.</p>
+        </div>
+      </div></footer>
+  </div>
+</div>
 </body>
-
 </html>

@@ -11,7 +11,7 @@ references:
       only: /master/
 
 orbs:
-  snyk: snyk/snyk@0.0.8
+  snyk: snyk/snyk@1.1.2
   change-api: financial-times/change-api@0.25.0
 
 commands:
