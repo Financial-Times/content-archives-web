@@ -12,7 +12,7 @@ references:
 
 orbs:
   snyk: snyk/snyk@1.1.2
-  change-api: financial-times/change-api@0.25.0
+  change-api: financial-times/change-api@1
 
 commands:
   test:
@@ -62,10 +62,9 @@ workflows:
 
   release:
     jobs:
-      - change-api/release-log:
-          changeApiKey: '${CHANGE_API_KEY}'
-          systemCode: 'upp-exports'
+      - change-api/change-log:
+          system-code: 'upp-exports'
           environment: 'prod'
-          slackChannels: 'upp-changes,ft-changes'
+          slack-channels: 'upp-changes,ft-changes'
           filters:
             <<: *filters_only_master_branch
