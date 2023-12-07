@@ -65,6 +65,6 @@ workflows:
       - change-api/change-log:
           system-code: 'upp-exports'
           environment: 'prod'
-          slack-channels: 'upp-changes,ft-changes'
+          slack-channels: 'cm-changes,ft-changes'
           filters:
             <<: *filters_only_master_branch
