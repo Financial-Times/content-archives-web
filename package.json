@@ -29,7 +29,7 @@
     "@financial-times/express-web-service": "^3.4.4",
     "@financial-times/health-check": "^2.1.9",
     "@financial-times/n-logger": "^6.2.0",
-    "@financial-times/okta-express-middleware": "^1.0.3",
+    "@financial-times/okta-express-middleware": "^1.0.6",
     "aws-sdk": "^2.814.0",
     "cookie-session": "^1.4.0",
     "dotenv": "^8.2.0",
