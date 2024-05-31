@@ -46,6 +46,8 @@ workflows:
           context:
             - cm-team-snyk
             - cm-team-github
+          filters:
+            <<: *filter_all_branches
   release:
     jobs:
       - change-api/change-log:
