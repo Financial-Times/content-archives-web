@@ -28,7 +28,7 @@ commands:
 jobs:
   lint_test:
     docker:
-      - image: circleci/node:lts
+      - image: node:lts-alpine3.20
     steps:
       - test
 
