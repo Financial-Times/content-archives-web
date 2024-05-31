@@ -11,8 +11,8 @@ references:
       only: /master/
 
 orbs:
-  snyk: snyk/snyk@1.1.2
   change-api: financial-times/change-api@1
+  ft-golang-ci: financial-times/golang-ci@1
 
 commands:
   test:
@@ -24,27 +24,13 @@ commands:
       - run:
           name: Lint
           command: npm run lint
-  snyk:
-    steps:
-      - checkout
-      - snyk/scan:
-          fail-on-issues: true
-          monitor-on-build: true
-
-executors:
-  node:
-    docker:
-      - image: circleci/node:lts
 
 jobs:
   lint_test:
-    executor: node
+    docker:
+      - image: circleci/node:lts
     steps:
       - test
-  snyk:
-    executor: node
-    steps:
-      - snyk
 
 workflows:
   version: 2
@@ -53,13 +39,13 @@ workflows:
       - lint_test:
           filters:
             <<: *filter_all_branches
-  snyk:
+  snyk-scanning:
     jobs:
-      - snyk:
-          context: cm-team-snyk
-          filters:
-            <<: *filter_all_branches
-
+      - ft-golang-ci/scan:
+          name: scan-dependencies
+          context:
+            - cm-team-snyk
+            - cm-team-github
   release:
     jobs:
       - change-api/change-log:
